@@ -1,0 +1,76 @@
+@use './tokens' as *;
+
+/**
+ * 全局样式 —— reset + 设计令牌落地为 CSS 自定义属性。
+ * --td-* 变量供运行时 / JS / echarts 等跨技术栈读取,与 antd theme.ts 同源。
+ */
+
+:root {
+  /* 原型为纯浅色系统,固定 light,避免深色偏好下默认文字变白 */
+  color-scheme: light;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+  line-height: 1.5;
+
+  // 品牌色
+  --td-primary: #{$td-primary};
+  --td-primary-hover: #{$td-primary-hover};
+  --td-primary-active: #{$td-primary-active};
+  --td-primary-fixed: #{$td-primary-fixed};
+  --td-secondary: #{$td-secondary};
+  --td-tertiary: #{$td-tertiary};
+  --td-success: #{$td-success};
+  --td-error: #{$td-error};
+
+  // 背景 / 表面
+  --td-bg-layout: #{$td-bg-layout};
+  --td-surface: #{$td-surface};
+  --td-surface-container: #{$td-surface-container};
+  --td-surface-container-high: #{$td-surface-container-high};
+  --td-surface-container-highest: #{$td-surface-container-highest};
+
+  // 文字 / 描边
+  --td-text: #{$td-text};
+  --td-text-secondary: #{$td-text-secondary};
+  --td-outline: #{$td-outline};
+  --td-outline-variant: #{$td-outline-variant};
+
+  // 圆角 / 间距
+  --td-radius-sm: #{$td-radius-sm};
+  --td-radius-md: #{$td-radius-md};
+  --td-radius-lg: #{$td-radius-lg};
+  --td-gutter: #{$td-gutter};
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  color: $td-text;
+}
+
+/*
+ * Material Symbols 字体图标(与需求原型同源)。
+ * 默认线性(FILL 0),需要填充态用 MaterialIcon 组件的 filled 属性。
+ */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  vertical-align: middle;
+}
