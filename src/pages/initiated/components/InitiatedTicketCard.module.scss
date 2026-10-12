@@ -1,0 +1,70 @@
+@use '../../../assets/styles/tokens' as *;
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: $td-surface;
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-sm;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $td-primary;
+    background: $td-surface-container-high;
+  }
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: $td-text;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: $td-text-secondary;
+}
+
+.progressBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: #f4f6f9;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #e8e8e8;
+}
+
+.dot {
+  color: $td-outline-variant;
+}

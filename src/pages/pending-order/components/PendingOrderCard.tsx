@@ -1,24 +1,11 @@
 import { Button } from 'antd'
 import type { ReactNode } from 'react'
 
+import type { PendingOrderTicket } from '../../../api/pendingOrderMock'
+
 import styles from './PendingOrderCard.module.scss'
 
-/** 待接单工单卡片数据 —— TODO: 与统一待办服务接口模型对齐 */
-export interface PendingOrderTicket {
-  id: string
-  title: string
-  /** 优先级:决定卡片左边条与标签颜色 */
-  priority: '高' | '中' | '低'
-  /** 所属应用(来源系统) */
-  app: string
-  /** 派发时间 */
-  time: string
-}
-
-/** 立即接单 —— TODO: 接单接口,成功后从列表移除并刷新菜单角标 */
-function handleAccept(id: string) {
-  console.warn('[pending-order] 立即接单:', id)
-}
+export type { PendingOrderTicket }
 
 /** 优先级 → 卡片左边条颜色 */
 const PRIORITY_BORDER: Record<PendingOrderTicket['priority'], string> = {
@@ -34,15 +21,16 @@ const PRIORITY_BADGE: Record<PendingOrderTicket['priority'], string> = {
   低: styles.badgeLow,
 }
 
-/**
- * 待接单工单卡片:在待办卡片字段基础上增加"立即接单"操作区。
- */
 export function PendingOrderCard({
   ticket,
   checkbox,
+  onAccept,
+  accepting,
 }: {
   ticket: PendingOrderTicket
   checkbox?: ReactNode
+  onAccept?: (id: string) => void
+  accepting?: boolean
 }) {
   return (
     <div className={`${styles.card} ${PRIORITY_BORDER[ticket.priority]}`}>
@@ -61,9 +49,23 @@ export function PendingOrderCard({
           <span>{ticket.app}</span>
           <span className={styles.dot}>·</span>
           <span>{ticket.time}</span>
+          {ticket.deadline && (
+            <>
+              <span className={styles.dot}>·</span>
+              <span style={{ color: '#ba1a1a', fontSize: 11 }}>{ticket.deadline}</span>
+            </>
+          )}
         </div>
 
-        <Button size="small" type="primary" onClick={() => handleAccept(ticket.id)}>
+        <Button
+          size="small"
+          type="primary"
+          loading={accepting}
+          onClick={(e) => {
+            e.stopPropagation()
+            onAccept?.(ticket.id)
+          }}
+        >
           立即接单
         </Button>
       </div>

@@ -1,0 +1,8 @@
+{
+  "name": "统一待办",
+  "description": "统一待办系统 PC端管理协同平台",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
