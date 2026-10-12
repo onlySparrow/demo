@@ -1,0 +1,27 @@
+@use '../../assets/styles/tokens' as *;
+
+/* 左右分栏:左固定宽列表 + 右详情面板(与待办列表模式同构) */
+.layout {
+  display: flex;
+  gap: $td-gutter;
+  height: 100%;
+}
+
+.leftPanel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 420px;
+  min-height: 0;
+}
+
+.rightPanel {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  background: $td-surface;
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-lg;
+}

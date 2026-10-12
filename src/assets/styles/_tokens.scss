@@ -1,0 +1,39 @@
+/**
+ * 全局设计令牌 —— 色号与需求原型(tailwind config)同源。
+ *
+ * 本文件只定义 SCSS 变量、不产生任何 CSS 输出,
+ * 组件样式 / CSS Modules 通过 `@use '../../assets/styles/tokens' as *;` 引用。
+ *
+ * 注意:antd 侧的同名色号在 src/theme.ts,改色请两处同步。
+ */
+
+// ===== 品牌色 =====
+$td-primary: #005daa; // 主色(侧栏高亮 / 主按钮)
+$td-primary-hover: #004785; // 主色 hover(加深)
+$td-primary-active: #0075d5; // 主色强调(浅一档)
+$td-primary-fixed: #d4e3ff; // 主色浅底(菜单选中态背景)
+$td-secondary: #214ae2; // 辅助色(徽标 / 次强调)
+$td-tertiary: #934600; // 第三色(中紧急度 / 警示棕)
+$td-success: #2e7d32; // 成功 / 已完成
+$td-error: #ba1a1a; // 错误 / 高紧急度
+
+// ===== 背景 / 表面 =====
+$td-bg-layout: #f7f9fc; // 页面底色
+$td-surface: #ffffff; // 卡片 / 容器
+$td-surface-container: #eceef1; // 浅容器(输入底 / 分组)
+$td-surface-container-high: #e6e8eb; // 高一级容器(hover 态)
+$td-surface-container-highest: #e0e3e6; // 最高容器(分隔 / 禁用底)
+
+// ===== 文字 / 描边 =====
+$td-text: #333333; // 默认文字(通用)
+$td-text-secondary: #404753; // 次文字
+$td-outline: #707785; // 描边 / 弱文字
+$td-outline-variant: #c0c7d6; // 弱描边 / 分割线
+
+// ===== 圆角 =====
+$td-radius-sm: 4px; // 标签 / 小元素
+$td-radius-md: 6px; // 按钮 / 输入框(与 antd borderRadius 对齐)
+$td-radius-lg: 8px; // 卡片 / 弹层
+
+// ===== 间距 =====
+$td-gutter: 16px; // 布局通用间距(内容区内边距 / 元素间隙)

@@ -1,0 +1,81 @@
+@use '../../../../assets/styles/tokens' as *;
+
+.card {
+  padding: 10px 12px;
+  background: $td-surface;
+  border: 1px solid $td-outline-variant;
+  border-left-width: 4px;
+  border-radius: $td-radius-md;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $td-primary;
+  }
+}
+
+/* 优先级左边条:高=红 中=棕 低=蓝 */
+.borderHigh {
+  border-left-color: $td-error;
+}
+
+.borderMid {
+  border-left-color: $td-tertiary;
+}
+
+.borderLow {
+  border-left-color: $td-primary;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  flex: 1;
+  overflow: hidden;
+  color: $td-text;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: $td-text-secondary;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* 优先级标签 */
+.priority {
+  padding: 0 8px;
+  border-radius: $td-radius-sm;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.badgeHigh {
+  background: $td-error;
+}
+
+.badgeMid {
+  background: $td-tertiary;
+}
+
+.badgeLow {
+  background: $td-primary;
+}
+
+.dot {
+  color: $td-outline;
+}
