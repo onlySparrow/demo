@@ -1,0 +1,202 @@
+@use '../../../assets/styles/tokens' as *;
+
+.mapContainer {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 580px;
+  height: 100%;
+  overflow: hidden;
+  background-color: #e5edf5;
+  border-radius: $td-radius-lg;
+  border: 1px solid $td-outline-variant;
+}
+
+.mapCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* 顶部悬浮筛选栏 */
+.topFilterBar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 94%;
+  max-width: 1100px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-lg;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 10px 16px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 左侧工单卡片抽屉面板 */
+.sidePanel {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  bottom: 24px;
+  width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-lg;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.collapsed {
+    transform: translateX(-350px);
+  }
+}
+
+.sidePanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid $td-outline-variant;
+  background: rgba(236, 238, 241, 0.5);
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-text;
+}
+
+.sidePanelList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidePanelFooter {
+  padding: 12px 14px;
+  border-top: 1px solid $td-outline-variant;
+  background: rgba(236, 238, 241, 0.4);
+}
+
+/* 工单卡片小项 */
+.cardItem {
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid $td-outline-variant;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left-width: 4px;
+
+  &.borderHigh {
+    border-left-color: $td-error;
+  }
+  &.borderMid {
+    border-left-color: $td-tertiary;
+  }
+  &.borderLow {
+    border-left-color: $td-primary;
+  }
+
+  &:hover {
+    background: #f0f7ff;
+    border-color: $td-primary;
+  }
+
+  &.selected {
+    background: #e6f4ff;
+    border-color: $td-primary;
+    box-shadow: 0 0 0 2px rgba(0, 93, 170, 0.2);
+  }
+}
+
+.cardItemTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: $td-text;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardItemMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #777;
+}
+
+/* 路线规划卡片浮层 */
+.routeOverlay {
+  position: absolute;
+  top: 80px;
+  right: 24px;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid $td-primary;
+  border-radius: $td-radius-lg;
+  box-shadow: 0 12px 32px rgba(0, 93, 170, 0.18);
+  padding: 16px;
+  z-index: 45;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 悬浮气泡弹窗 InfoWindow */
+.infoWindowCard {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  background: #ffffff;
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-lg;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 42;
+  animation: fadeIn 0.2s ease;
+}
+
+.infoWindowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f7f9fc;
+  border-bottom: 1px solid $td-outline-variant;
+}
+
+.infoWindowBody {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}

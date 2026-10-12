@@ -1,0 +1,144 @@
+@use '../../../../assets/styles/tokens' as *;
+
+.card {
+  position: relative;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-top: 1px solid rgba(192, 199, 214, 0.4);
+  border-right: 1px solid rgba(192, 199, 214, 0.4);
+  border-bottom: 1px solid rgba(192, 199, 214, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 0 0 1px $td-primary, 0 2px 8px rgba(0, 93, 170, 0.08);
+  }
+
+  &.selected {
+    box-shadow: 0 0 0 2px $td-primary;
+    background: #f8fbff;
+  }
+
+  &.borderHigh {
+    border-left-color: $td-error;
+  }
+  &.borderMid {
+    border-left-color: $td-tertiary;
+  }
+  &.borderLow {
+    border-left-color: $td-primary;
+  }
+}
+
+.checkboxContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleRow {
+  margin-bottom: 6px;
+  padding-right: 28px;
+  line-height: 1.35;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indexBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  margin-right: 6px;
+  vertical-align: middle;
+  transform: translateY(-1px);
+
+  &.bgHigh {
+    background-color: $td-error;
+  }
+  &.bgMid {
+    background-color: $td-tertiary;
+  }
+  &.bgLow {
+    background-color: $td-primary;
+  }
+}
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: $td-outline;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.locationIcon {
+  font-size: 13px !important;
+  color: $td-outline;
+  line-height: 1;
+}
+
+.locationText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.assignee {
+  font-size: 10px;
+  color: $td-outline;
+}
+
+.urgencyBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+
+  &.badgeHigh {
+    background-color: rgba(186, 26, 26, 0.1);
+    color: $td-error;
+  }
+  &.badgeMid {
+    background-color: rgba(147, 70, 0, 0.1);
+    color: $td-tertiary;
+  }
+  &.badgeLow {
+    background-color: rgba(0, 93, 170, 0.1);
+    color: $td-primary;
+  }
+}
