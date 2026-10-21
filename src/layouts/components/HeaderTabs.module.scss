@@ -1,0 +1,32 @@
+@use '../../assets/styles/tokens' as *;
+
+/*
+ * 顶栏 tab(antd Segmented) —— 浅灰圆角容器,
+ * 选中蓝底白字小圆角加粗、未选中深灰无底。
+ * antd v6 选中底色在 item-selected 上(无 thumb 滑块),覆盖需 !important。
+ */
+.tabs {
+  padding: 2px;
+  background: $td-surface-container;
+  border-radius: $td-radius-md;
+
+  :global(.ant-segmented-item) {
+    border-radius: $td-radius-md;
+  }
+
+  :global(.ant-segmented-item-label) {
+    padding: 3px 14px;
+    color: $td-text !important;
+    font-size: 13px;
+  }
+
+  :global(.ant-segmented-item-selected) {
+    background: $td-primary !important;
+    color: #fff !important;
+    font-weight: 600;
+
+    :global(.ant-segmented-item-label) {
+      color: #fff !important;
+    }
+  }
+}

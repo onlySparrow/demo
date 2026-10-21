@@ -1,4 +1,4 @@
-import type { TodoTicket } from '../../../api/todo'
+import type { TodoTicket } from '@/api/todo'
 
 export interface MapTodoTicket extends TodoTicket {
   /** 经度 (百度坐标系 BD09) */

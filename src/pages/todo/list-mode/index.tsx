@@ -1,147 +1,110 @@
-import { Button, Empty, Input, Select, Space, message } from 'antd'
+import { Empty } from 'antd'
 import { useEffect, useState } from 'react'
-import type { Key } from 'react'
+import { useSearchParams } from 'react-router'
 
-import { MaterialIcon } from '../../../components/MaterialIcon'
-import { BaseList } from '../../../components/BaseList'
-// 先引入 todoMock.ts，待后端接口开发就绪后直接改为: import { fetchTodoList, type TodoTicket } from '../../../api/todo'
-import { fetchTodoList, type TodoTicket } from '../../../api/todoMock'
+import type { TodoTicket } from '@/api/todo'
+import { AssignmentIcon } from '@/assets/icons'
+import { useMenuBadgeStore } from '@/store/menuBadgeStore'
 
-import { TodoTicketCard } from './components/TodoTicketCard'
-import { TODO_PRIORITY_OPTIONS } from '../config'
+import { TodoListPanel } from '../components/TodoListPanel'
+// 智能工具箱整体注释隐藏(2026-10-14 需求),恢复时取消下行注释即可
+// import { SmartToolbox } from '../components/SmartToolbox'
+import { TodoDetailPanel } from './components/TodoDetailPanel'
 
 import styles from './index.module.scss'
 
-/** 演示用每页条数(BaseList 默认也是 10) */
-const PAGE_SIZE = 10
-
 /**
- * 待办 - 列表模式:左侧工单列表 + 右侧详情分栏。
- * 数据通过 fetchTodoList 异步获取。
+ * 待办 - 列表模式:左侧工单列表(TodoListPanel 共用组件) + 右侧详情分栏。
+ * 列表筛选/分页/批量通过驳回等能力都在 TodoListPanel 内,本页只管详情联动。
  */
 export function TodoListMode() {
-  const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  /** 深链工单:URL ?id=(或 ?ticketNo=) 带入的工单标识 */
+  const focusId = searchParams.get('id') ?? searchParams.get('ticketNo')
+
+  /** 面板列表数据镜像(onListChange 同步),用于右侧详情取数 */
   const [list, setList] = useState<TodoTicket[]>([])
-  const [total, setTotal] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
-  const [loadedCount, setLoadedCount] = useState(PAGE_SIZE)
-  const [selectedKeys, setSelectedKeys] = useState<Key[]>([])
-  const [smartSort, setSmartSort] = useState(false)
-  const [priority, setPriority] = useState<string | undefined>(undefined)
-  const [keyword, setKeyword] = useState<string>('')
+  /** 当前点选查看的工单（卡片浅蓝高亮 + 右侧详情） */
+  const [activeId, setActiveId] = useState<string | null>(null)
+  /** 深链工单不在当前列表时,由面板详情接口拉到的兜底数据 */
+  const [focusTicket, setFocusTicket] = useState<TodoTicket | null>(null)
+  const activeTicket =
+    list.find((t) => t.id === activeId) ??
+    (focusTicket && focusTicket.id === activeId ? focusTicket : null)
 
-  const loadData = () => {
-    setLoading(true)
-    fetchTodoList({
-      page: 1,
-      pageSize: loadedCount,
-      priority,
-      smartSort,
-      keyword,
-    })
-      .then((res) => {
-        setList(res.list)
-        setTotal(res.total)
-        setHasMore(Boolean(res.hasMore))
-      })
-      .catch((error) => {
-        console.error('[todo] 获取待办列表失败:', error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+  /** 转派等操作成功后递增,驱动列表面板重拉 */
+  const [refreshSignal, setRefreshSignal] = useState(0)
+  /** 菜单角标刷新(取 /todo/list 的 total) */
+  const refreshMenuBadge = useMenuBadgeStore((state) => state.fetchMenuBadgeCounts)
+
+  /**
+   * 面板卡片点选:在列表内的直接展开详情;
+   * 不在列表内的(深链详情兜底)记录为 focusTicket 供右侧展示。
+   */
+  const handleSelectTicket = (ticket: TodoTicket) => {
+    setFocusTicket(list.some((t) => t.id === ticket.id) ? null : ticket)
+    setActiveId(ticket.id)
   }
 
+  // 列表数据变化(onListChange)可能晚于点选,这里统一兜底校正 focusTicket 归属
   useEffect(() => {
-    loadData()
-  }, [loadedCount, priority, smartSort, keyword])
+    if (!activeId) return
+    const inList = list.some((t) => t.id === activeId)
+    if (inList && focusTicket && focusTicket.id === activeId) {
+      setFocusTicket(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list])
 
-  const handlePriorityChange = (value?: string) => {
-    setPriority(value)
-    setLoadedCount(PAGE_SIZE)
-  }
+  // 筛选后若当前激活工单不在列表中，清空详情(深链兜底的独立详情除外)
+  useEffect(() => {
+    if (!activeId || list.length === 0) return
+    if (list.some((t) => t.id === activeId)) return
+    if (focusTicket && focusTicket.id === activeId) return
+    setActiveId(null)
+  }, [list, activeId, focusTicket])
 
-  const handleToggleSmartSort = () => {
-    setSmartSort((value) => !value)
-    setLoadedCount(PAGE_SIZE)
-  }
-
-  const handleBatch = (action: string) => {
-    if (selectedKeys.length === 0) return
-    message.success(`已批量${action} ${selectedKeys.length} 项工单`)
-    setSelectedKeys([])
+  /** 转派等操作成功后:同步兜底详情数据,通知列表面板重拉并刷新菜单角标 */
+  const handleTicketUpdate = (updated: TodoTicket) => {
+    setFocusTicket((prev) => (prev && prev.id === updated.id ? updated : prev))
+    setRefreshSignal((n) => n + 1)
+    refreshMenuBadge()
   }
 
   return (
     <div className={styles.layout}>
       <div className={styles.leftPanel}>
-        <BaseList<TodoTicket>
-          title="待办工单"
-          titleExtra={<span>共 {total} 条</span>}
-          loading={loading}
-          filterSlot={
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-              <Input.Search
-                size="small"
-                placeholder="请输入工单名称/来源检索"
-                allowClear
-                onSearch={(val) => {
-                  setKeyword(val)
-                  setLoadedCount(PAGE_SIZE)
-                }}
-              />
-              <Space wrap size={8}>
-                <Select
-                  size="small"
-                  allowClear
-                  placeholder="紧急度"
-                  style={{ width: 100 }}
-                  value={priority}
-                  onChange={handlePriorityChange}
-                  options={TODO_PRIORITY_OPTIONS}
-                />
-              </Space>
-            </div>
-          }
-          toolbarSticky={false}
-          toolbarSlot={
-            <Button
-              size="small"
-              type={smartSort ? 'primary' : 'default'}
-              icon={<MaterialIcon name="sort" className={styles.sortIcon} />}
-              onClick={handleToggleSmartSort}
-            >
-              智能排序
-            </Button>
-          }
-          dataSource={list}
-          rowKey={(ticket) => ticket.id}
-          renderItem={(ticket, { checkbox }) => <TodoTicketCard ticket={ticket} checkbox={checkbox} />}
-          selectable
-          selectedRowKeys={selectedKeys}
-          onSelectedChange={setSelectedKeys}
-          batchSlot={
-            <>
-              <Button size="small" type="primary" onClick={() => handleBatch('通过')}>
-                批量通过
-              </Button>
-              <Button size="small" danger onClick={() => handleBatch('驳回')}>
-                批量驳回
-              </Button>
-              <Button size="small" danger onClick={() => handleBatch('删除')}>
-                批量删除
-              </Button>
-            </>
-          }
-          pagination={{ total, pageSize: PAGE_SIZE, hasMore }}
-          paginationMode="loadMore"
-          onLoadMore={() => setLoadedCount((count) => count + PAGE_SIZE)}
+        <TodoListPanel
+          focusId={focusId}
+          activeId={activeId}
+          onSelectTicket={handleSelectTicket}
+          onListChange={setList}
+          refillDetail
+          refreshSignal={refreshSignal}
         />
       </div>
 
-      <div className={styles.rightPanel}>
-        <Empty description="请在左侧选择待办工单" />
+      <div className={`${styles.rightPanel} ${activeTicket ? styles.rightPanelFilled : ''}`}>
+        {activeTicket ? (
+          <TodoDetailPanel ticket={activeTicket} onTicketUpdate={handleTicketUpdate} />
+        ) : (
+          <Empty
+            image={<AssignmentIcon className={styles.emptyIcon} />}
+            description="请在左侧选择待办工单"
+          />
+        )}
       </div>
+
+      {/* 智能工具箱整体注释隐藏(2026-10-14 需求),恢复时取消注释即可
+      <SmartToolbox
+        mode="list"
+        visible={Boolean(activeTicket)}
+        ticketId={activeTicket?.id}
+        ticketNo={activeTicket?.ticketNo}
+        siteName={activeTicket?.siteName}
+        ticketTitle={activeTicket?.title}
+      />
+      */}
     </div>
   )
 }

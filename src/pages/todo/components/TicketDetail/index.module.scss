@@ -1,0 +1,845 @@
+@use '../../../../assets/styles/tokens' as *;
+
+/* 详情内容根:列表模式右栏与地图模式弹窗共用,父容器决定占位(右栏 100% 高 / 弹窗 flex:1) */
+.detail {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $td-surface;
+}
+
+.header {
+  display: flex;
+  flex: none;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid $td-outline-variant;
+  background: $td-bg-layout;
+}
+
+.headerMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: $td-text;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 状态徽章:与地图弹窗状态标签同款(无箭头、4px 直角圆角) */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 2px 10px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 93, 170, 0.12);
+  color: $td-primary;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 20px;
+
+  &:hover {
+    background: rgba(0, 93, 170, 0.2);
+  }
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px 16px;
+  font-size: 13px;
+  color: $td-text;
+}
+
+.metaLabel {
+  color: $td-outline;
+  margin-right: 6px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+
+.deadline {
+  font-weight: 600;
+}
+
+.deadlineUrgent {
+  color: $td-error;
+  font-weight: 700;
+}
+
+.miniMap {
+  position: relative;
+  flex: none;
+  width: 130px;
+  height: 130px;
+  border-radius: 8px;
+  border: 1px solid $td-outline-variant;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+
+  &:hover {
+    border-color: $td-primary;
+    box-shadow: 0 0 0 2px rgba(0, 93, 170, 0.15);
+  }
+}
+
+.miniMapGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image:
+    linear-gradient(rgba(0, 93, 170, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 93, 170, 0.2) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.miniMapPin {
+  position: relative;
+  z-index: 1;
+  font-size: 28px;
+  color: $td-error;
+}
+
+.miniMapLabel {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  font-weight: 600;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 关闭按钮(地图模式弹窗顶栏;列表模式不传 onClose 不渲染) */
+.closeBtn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: $td-outline;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: $td-surface-container;
+    color: $td-text;
+  }
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  /* 子区块不参与 flex 压缩:卡片 overflow:hidden 会解除 min-height 的内容下限,
+     滚动列内容超高时会被压成只剩标题栏 */
+  > section {
+    flex: none;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: $td-text;
+  }
+}
+
+.sectionBar {
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: $td-primary;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 24px;
+}
+
+.fieldItem {
+  min-width: 0;
+}
+
+.fieldLabel {
+  margin: 0 0 4px;
+  color: $td-outline;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.fieldValue {
+  margin: 0;
+  color: $td-text;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+/* 处理流转记录:与 infoCard 同族 —— 白底卡 + 灰色折叠标题栏 + 白底时间线 */
+.flowSection {
+  background: $td-surface;
+  border: 1px solid $td-outline-variant;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.flowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid $td-outline-variant;
+  background: $td-surface-container;
+  cursor: pointer;
+  padding: 10px 14px;
+  color: $td-text;
+}
+
+.flowHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.flowIcon {
+  color: $td-primary;
+  font-size: 18px;
+}
+
+.timeline {
+  margin: 14px 14px 16px 24px;
+  padding-left: 18px;
+  border-left: 2px solid $td-outline-variant;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timelineItem {
+  position: relative;
+}
+
+.dotCompleted,
+.dotCurrent {
+  position: absolute;
+  left: -25px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $td-primary;
+  box-shadow: 0 0 0 4px #fff;
+}
+
+.dotCurrent {
+  background: $td-outline;
+}
+
+.timelineTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-text;
+}
+
+.timelineTime {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: $td-outline;
+}
+
+.timelineNote {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: $td-surface-container;
+  border: 1px solid $td-outline-variant;
+  border-radius: 6px;
+  font-size: 12px;
+  color: $td-text-secondary;
+  line-height: 1.5;
+}
+
+/* ===== 信息卡片(处理时效 / 故障现象与影响范围 / 现场处理记录 / 关联告警 /
+   附件与现场照片 / 操作日志,2026-10-14 新原型):白底卡 + 灰色标题栏 + 白底内容区 ===== */
+
+.infoCard {
+  background: $td-surface;
+  border: 1px solid $td-outline-variant;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 标题栏:浅灰底 + 底边框 + 主色图标(对齐原型 bg-surface-container-low/60 border-b) */
+.infoCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: $td-surface-container;
+  border-bottom: 1px solid $td-outline-variant;
+  color: $td-text;
+
+  h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.infoCardIcon {
+  color: $td-primary;
+  font-size: 18px;
+}
+
+.infoCardBody {
+  padding: 14px;
+}
+
+/* --- 处理时效 --- */
+
+/* 顶部 4 项时效指标(浅灰小卡衬在白底内容区) */
+.slaStatGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.slaStat {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: $td-surface-container;
+}
+
+.slaStatLabel {
+  margin: 0;
+  font-size: 11px;
+  color: $td-outline;
+  line-height: 1.4;
+}
+
+.slaStatValue {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 流转进度:徽章 + 百分比 + 进度条 + 六阶段节点条 */
+.slaProgressBlock {
+  margin-top: 14px;
+}
+
+.slaProgressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.slaProgressLabel {
+  font-size: 11px;
+  color: $td-outline;
+}
+
+.slaProgressMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slaBadgeOk,
+.slaBadgeOverdue {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.slaBadgeOk {
+  color: $td-success;
+  background: rgba(46, 125, 50, 0.06);
+  border-color: rgba(46, 125, 50, 0.3);
+}
+
+.slaBadgeOverdue {
+  color: $td-error;
+  background: rgba(186, 26, 26, 0.05);
+  border-color: rgba(186, 26, 26, 0.3);
+}
+
+.slaPercent {
+  font-size: 11px;
+  font-weight: 700;
+  color: $td-primary;
+}
+
+.slaProgressBar {
+  height: 8px;
+  border-radius: 999px;
+  background: $td-surface-container-high;
+  overflow: hidden;
+}
+
+.slaProgressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: $td-primary;
+  transition: width 0.3s;
+}
+
+.slaStageStrip {
+  display: flex;
+  margin-top: 12px;
+}
+
+.slaStage {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.slaStageDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $td-outline-variant;
+}
+
+.slaStageName {
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: $td-outline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 已完成/当前:主色圆点 + 深色加粗文案;当前环节再加主色光环(对齐原型 ring) */
+.slaStage[data-state='done'] .slaStageDot,
+.slaStage[data-state='current'] .slaStageDot {
+  background: $td-primary;
+}
+
+.slaStage[data-state='done'] .slaStageName,
+.slaStage[data-state='current'] .slaStageName {
+  color: $td-text;
+  font-weight: 700;
+}
+
+.slaStage[data-state='current'] .slaStageDot {
+  box-shadow: 0 0 0 4px rgba(0, 93, 170, 0.15);
+}
+
+/* 底部汇总 3 项 */
+.slaFooter {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed $td-outline-variant;
+  font-size: 12px;
+}
+
+.slaFooterLabel {
+  color: $td-outline;
+}
+
+.slaFooterValue {
+  font-weight: 600;
+  color: $td-text;
+}
+
+.slaFooterError {
+  color: $td-error;
+}
+
+/* --- 故障现象与影响范围 --- */
+
+.faultDesc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: $td-text-secondary;
+}
+
+.faultStatGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.faultStat {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid $td-outline-variant;
+  border-radius: 8px;
+  background: $td-surface;
+}
+
+.faultStatLabel {
+  margin: 0;
+  font-size: 11px;
+  color: $td-outline;
+  line-height: 1.4;
+}
+
+.faultStatValue {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- 现场处理记录 --- */
+
+.siteRecords {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.siteRecordItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* 序号徽标:主色浅底圆角方块 */
+.siteRecordNo {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(0, 93, 170, 0.1);
+  color: $td-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.siteRecordMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.siteRecordTitleRow {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.siteRecordTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-text;
+}
+
+.siteRecordTime {
+  font-size: 11px;
+  color: $td-outline;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.siteRecordNote {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: $td-text-secondary;
+  line-height: 1.6;
+}
+
+/* --- 关联告警 --- */
+
+/* 外层圆角裁切表格(对齐原型 overflow-hidden rounded-lg border) */
+.alarmTableWrap {
+  border: 1px solid $td-outline-variant;
+  border-radius: 8px;
+  overflow: hidden;
+  background: $td-surface;
+}
+
+.alarmTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+
+  th {
+    padding: 8px 10px;
+    background: $td-surface-container;
+    color: $td-outline;
+    font-weight: 500;
+    border-bottom: 1px solid $td-outline-variant;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    color: $td-text;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.alarmStatus {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 激活=红 / 已恢复=绿(提高特异性压过 .alarmTable td 的默认色) */
+.alarmTable td.alarmActive {
+  color: $td-error;
+}
+
+.alarmTable td.alarmResolved {
+  color: $td-success;
+}
+
+.alarmObject {
+  color: $td-text-secondary;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alarmTime {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
+}
+
+/* --- 附件与现场照片 --- */
+
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid $td-outline-variant;
+  border-radius: 8px;
+  background: $td-surface;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+
+  &:hover {
+    border-color: rgba(0, 93, 170, 0.4);
+    background: rgba(0, 93, 170, 0.04);
+  }
+}
+
+/* 文件类型图标:主色 + 主色浅底 */
+.fileIcon {
+  flex: none;
+  display: flex;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 93, 170, 0.1);
+  color: $td-primary;
+  font-size: 20px;
+}
+
+.fileMeta {
+  min-width: 0;
+}
+
+.fileName {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: $td-text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileType {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: $td-outline;
+}
+
+/* --- 操作日志 --- */
+
+.logList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 12px;
+}
+
+/* 时间定宽等宽字体 / 操作人定宽截断 / 动作自适应(对齐原型三段行);
+   完整时间戳 YYYY-MM-DD HH:mm 需 ~115px,100px 会折行 */
+.logTime {
+  flex: none;
+  width: 120px;
+  white-space: nowrap;
+  color: $td-outline;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.logUser {
+  flex: none;
+  width: 52px;
+  font-weight: 700;
+  color: $td-text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logAction {
+  flex: 1;
+  min-width: 0;
+  color: $td-text-secondary;
+}
+
+/* --- 通用空态(新模块无数据时) --- */
+
+.emptyState {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 12px;
+  color: $td-outline;
+}
+
+.footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  height: 56px;
+  padding: 0 20px;
+  border-top: 1px solid $td-outline-variant;
+  background: $td-surface-container-high;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===== 底栏操作按钮 ===== */
+
+/* 按钮共性:原型 rounded-lg 8px + label-bold 600 */
+.footerActionBtn {
+  border-radius: $td-radius-lg !important;
+  font-weight: 600 !important;
+}
+
+/* 转派:主色实心(bg-primary / text-on-primary / shadow-sm,2026-10-14 用户要求改成原返单配色) */
+.transferBtn {
+  color: #ffffff !important;
+  background: $td-primary !important;
+  border-color: $td-primary !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; /* 原型 shadow-sm */
+
+  &:hover {
+    color: #ffffff !important;
+    background: $td-primary !important;
+    border-color: $td-primary !important;
+    opacity: 0.9; /* 原型 hover:opacity-90 */
+  }
+}

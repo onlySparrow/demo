@@ -1,0 +1,120 @@
+@use '../../../../assets/styles/tokens' as *;
+
+/* ===== 工单进度详情弹层(点击状态徽章/标签;原型=蓝色标题条 + 竖向六阶段时间线) ===== */
+
+.progressPanel {
+  width: 300px;
+  overflow: hidden;
+  border-radius: $td-radius-lg;
+  background: $td-surface;
+}
+
+.progressHeader {
+  padding: 10px 16px;
+  background: $td-primary;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.progressTimeline {
+  /* 限高明显矮于详情大弹窗(约 40vh),数据增多时内部滚动,蓝色标题条恒定 */
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: 16px 14px 18px;
+}
+
+.progressNode {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 18px;
+
+  &:last-child {
+    padding-bottom: 0;
+
+    &::before {
+      content: none;
+    }
+  }
+
+  /* 节点下方连接线:已完成绿 / 当前环节蓝 / 未到浅灰 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    bottom: 4px;
+    left: 7px;
+    width: 2px;
+    background: #d5e0f5;
+  }
+
+  &[data-state='done']::before {
+    background: $td-success;
+  }
+
+  &[data-state='current']::before {
+    background: $td-primary;
+  }
+}
+
+.progressDot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: $td-success;
+
+  .progressNode[data-state='current'] & {
+    background: #ffffff;
+    border: 3px solid $td-primary;
+  }
+
+  .progressNode[data-state='pending'] & {
+    background: #ffffff;
+    border: 2px solid #b8c4d9;
+  }
+}
+
+.progressContent {
+  min-width: 0;
+}
+
+.progressTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: $td-text;
+
+  .progressNode[data-state='current'] & {
+    color: $td-primary;
+  }
+
+  .progressNode[data-state='pending'] & {
+    color: $td-text-secondary;
+  }
+}
+
+/* 处理人行:原型为红色加粗「环节名 处理人/班组 联系方式」;未到环节灰色「进行中...」 */
+.progressHandler {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $td-error;
+  word-break: break-all;
+
+  .progressNode[data-state='pending'] & {
+    color: $td-outline;
+    font-weight: 400;
+  }
+}
+
+.progressTime {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: $td-outline;
+}

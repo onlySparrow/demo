@@ -1,4 +1,4 @@
-import { get } from '../utils/request'
+import { get } from '@/utils/request'
 
 /** 各菜单角标数量 —— key 为菜单路由地址(与 menuConfig 的 key 一致) */
 export type MenuBadgeCounts = Record<string, number>

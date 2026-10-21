@@ -1,12 +1,20 @@
 import { CloseOutlined, WarningOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
-import type { PerformanceAlert } from '../../../api/performanceMock'
+import type { PerformanceAlert } from '@/api/performance'
 
-export function AlertBanner({ alerts }: { alerts: PerformanceAlert[] }) {
+/** 预警值缺失时的占位符 */
+const DASH = '-'
+
+/** 预警条目值缺省展示(无数据时显示「-」) */
+function deviationText(a: PerformanceAlert): string {
+  return a.deviation == null ? DASH : `${a.deviation}%`
+}
+
+export function AlertBanner({ alerts }: { alerts?: PerformanceAlert[] }) {
   const [closedIds, setClosedIds] = useState<string[]>([])
 
-  const activeAlerts = alerts.filter((a) => !closedIds.includes(a.id))
+  const activeAlerts = (alerts ?? []).filter((a) => !closedIds.includes(a.id))
   if (activeAlerts.length === 0) return null
 
   return (
@@ -31,7 +39,8 @@ export function AlertBanner({ alerts }: { alerts: PerformanceAlert[] }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {isWarn ? <WarningOutlined /> : <InfoCircleOutlined />}
               <span>
-                <strong>效能预警: {a.metric}</strong> —— 当前 {a.current}，目标 {a.target}，偏离 {a.deviation}%
+                <strong>效能预警: {a.metric ?? DASH}</strong> —— 当前 {a.current ?? DASH}，目标{' '}
+                {a.target ?? DASH}，偏离 {deviationText(a)}
               </span>
             </div>
             <button

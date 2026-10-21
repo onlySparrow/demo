@@ -1,0 +1,266 @@
+@use '../../../../assets/styles/tokens' as *;
+
+.drawer {
+  :global(.ant-drawer-content) {
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid $td-outline-variant;
+  background: $td-surface-container;
+  flex: none;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.headerIcon {
+  color: $td-primary;
+  font-size: 22px;
+}
+
+.headerTitle {
+  font-weight: 700;
+  font-size: 15px;
+  color: $td-text;
+}
+
+.headerMeta {
+  font-size: 12px;
+  color: $td-outline;
+  margin-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapseBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: $td-outline;
+  display: flex;
+  padding: 4px;
+  border-radius: 6px;
+
+  &:hover {
+    color: $td-error;
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.leftPane {
+  width: 42%;
+  min-width: 320px;
+  border-right: 1px solid $td-outline-variant;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tabs {
+  padding: 0 8px;
+  flex: none;
+
+  :global(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
+}
+
+.dataList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dataPlaceholder {
+  color: $td-outline;
+  text-align: center;
+  padding: 40px 16px;
+  margin: 0;
+}
+
+.dataCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid $td-outline-variant;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.dataMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.dataTitleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.dataTag {
+  color: $td-primary;
+  font-weight: 700;
+  font-size: 13px;
+  flex: none;
+}
+
+.dataTitle {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: $td-text;
+  line-height: 1.4;
+}
+
+.dataTime {
+  flex: none;
+  font-size: 12px;
+  color: $td-outline;
+}
+
+.dataMeta {
+  font-size: 12px;
+  color: $td-outline;
+  line-height: 1.45;
+}
+
+.dataDelete {
+  border: none;
+  background: transparent;
+  color: $td-error;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 4px;
+  flex: none;
+  align-self: flex-end;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.rightPane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  color: $td-outline;
+}
+
+.emptyText {
+  color: $td-text-secondary;
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.generateBtn {
+  min-width: 200px;
+}
+
+.resultView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid $td-outline-variant;
+  flex: none;
+}
+
+.resultTitle {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $td-text;
+}
+
+.resultSub {
+  margin: 0;
+  font-size: 13px;
+  color: $td-outline;
+}
+
+.generateBtnTop {
+  flex: none;
+}
+
+.planTabs {
+  padding: 0 16px;
+  flex: none;
+
+  :global(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
+}
+
+.planBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px 24px;
+}
+
+.planText {
+  flex: 1;
+  border: 1px solid $td-outline-variant;
+  border-radius: 12px;
+  padding: 20px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: $td-text;
+  background: #fafbfc;
+  min-height: 160px;
+}
+
+.planActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

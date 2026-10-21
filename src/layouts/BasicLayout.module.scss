@@ -1,0 +1,25 @@
+@use '../assets/styles/tokens' as *;
+
+.layout {
+  display: flex;
+  height: 100%;
+}
+
+/* 右侧主体:上顶栏 + 下内容区 */
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  padding: $td-gutter;
+  background: $td-bg-layout;
+}

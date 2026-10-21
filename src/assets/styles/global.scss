@@ -61,16 +61,3 @@ body,
 body {
   color: $td-text;
 }
-
-/*
- * Material Symbols 字体图标(与需求原型同源)。
- * 默认线性(FILL 0),需要填充态用 MaterialIcon 组件的 filled 属性。
- */
-.material-symbols-outlined {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  vertical-align: middle;
-}

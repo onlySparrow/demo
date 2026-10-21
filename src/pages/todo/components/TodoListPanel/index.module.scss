@@ -1,0 +1,115 @@
+@use '../../../../assets/styles/tokens' as *;
+
+/* 待办工单列表面板(列表模式左侧 / 地图模式侧栏共用) */
+
+.filterBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 名称输入框右侧的搜索图标(点击触发检索) */
+.searchIcon {
+  font-size: 15px;
+  color: $td-text-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $td-primary;
+  }
+}
+
+.filterHalfRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.filterHalf {
+  flex: 1;
+  min-width: 0;
+  width: 50%;
+}
+
+.datePickerFull {
+  width: 100%;
+}
+
+/* ===== 批量操作条按钮(原型:bg-green-600 / bg-error 实心圆角) ===== */
+.batchApproveBtn {
+  min-width: 96px;
+  color: #fff !important;
+  background: #16a34a !important; /* 原型 green-600 */
+
+  &:hover {
+    background: #15803d !important; /* 原型 green-700 */
+  }
+}
+
+.batchRejectBtn {
+  min-width: 96px;
+  color: #fff !important;
+  background: $td-error !important;
+
+  &:hover {
+    background: #9d1616 !important; /* $td-error 加深一档 */
+  }
+}
+
+/* ===== 批量二次确认弹窗 ===== */
+.batchModalTip {
+  margin: 0 0 12px;
+  color: $td-text;
+  font-size: 14px;
+
+  strong {
+    color: $td-primary;
+  }
+}
+
+/* 已选工单清单(原型 max-h-32 可滚动) */
+.batchModalList {
+  max-height: 128px;
+  margin-bottom: 16px;
+  overflow-y: auto;
+  border: 1px solid $td-outline-variant;
+  border-radius: $td-radius-md;
+}
+
+.batchModalItem {
+  padding: 8px 12px;
+
+  & + .batchModalItem {
+    border-top: 1px solid $td-outline-variant;
+  }
+}
+
+.batchModalItemTitle {
+  margin: 0;
+  color: $td-text;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.batchModalItemNo {
+  margin: 0;
+  color: $td-outline;
+  font-size: 12px;
+}

@@ -7,11 +7,21 @@
   border-left-width: 4px;
   border-radius: $td-radius-md;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     border-color: $td-primary;
   }
+}
+
+/* 选中 / 激活：浅蓝底 + 主色描边光晕（原型 #e8f0fe） */
+.cardSelected {
+  background: #e8f0fe;
+  border-color: $td-primary;
+  box-shadow: 0 0 0 2px rgba(0, 93, 170, 0.25);
 }
 
 /* 优先级左边条:高=红 中=棕 低=蓝 */
@@ -55,6 +65,30 @@
   line-height: 18px;
 }
 
+/* 一行两端分布:左侧信息 / 右侧信息 */
+.metaRowSpread {
+  justify-content: space-between;
+}
+
+/* 剩余处理时间(取自处理时限,悬停 title 显完整时限) */
+.remaining {
+  color: $td-tertiary;
+}
+
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sourceIcon {
+  flex: none;
+  font-size: 14px;
+  color: $td-primary;
+  line-height: 1;
+}
+
 /* 优先级标签 */
 .priority {
   padding: 0 8px;
@@ -74,8 +108,4 @@
 
 .badgeLow {
   background: $td-primary;
-}
-
-.dot {
-  color: $td-outline;
 }

@@ -1,4 +1,14 @@
-import { get } from '../utils/request'
+import { fetchDoneOrders as mockFetchDoneOrders } from '../../mockApi/doneMock'
+
+/**
+ * 已办模块接口层 —— 当前统一接入本地 mock 数据源（仓库根目录 `mockApi/doneMock.ts`）。
+ *
+ * 页面与组件一律从 `@/api/done` 引入，不感知数据来自真实接口还是 mock；
+ * 本地无后端即可跑通列表 / 筛选 / 分页。
+ *
+ * 切回真实接口：把下面函数的实现换回 `get('/order/done/list', params)` 即可
+ * （函数名与入参签名保持不变，调用方零改动）。
+ */
 
 export interface DoneTicket {
   id: string
@@ -29,5 +39,5 @@ export interface DoneOrdersResult {
 
 /** 查询已办工单列表 */
 export function fetchDoneOrders(params?: FetchDoneOrdersParams): Promise<DoneOrdersResult> {
-  return get<DoneOrdersResult>('/order/done/list', params)
+  return mockFetchDoneOrders(params)
 }

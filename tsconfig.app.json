@@ -17,10 +17,10 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client"],
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "@unified-todo/shared": ["./src/packages/shared/src"],
-      "@unified-todo/todo-core": ["./src/packages/todo-core/src"],
-      "@unified-todo/micro-app": ["./src/packages/micro-app/src"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],

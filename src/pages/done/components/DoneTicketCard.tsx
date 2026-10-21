@@ -1,7 +1,7 @@
 import { Tag } from 'antd'
 import type { ReactNode } from 'react'
 
-import type { DoneTicket } from '../../../api/doneMock'
+import type { DoneTicket } from '@/api/done'
 
 import styles from './DoneTicketCard.module.scss'
 

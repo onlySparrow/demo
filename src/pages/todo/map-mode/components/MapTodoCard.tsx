@@ -1,6 +1,7 @@
 import { Checkbox } from 'antd'
 
-import { MaterialIcon } from '../../../../components/MaterialIcon'
+import { LocationOnIcon } from '@/assets/icons'
+import { PRIORITY_LABEL } from '@/pages/todo/config'
 import type { MapTodoTicket } from '../types'
 
 import styles from './MapTodoCard.module.scss'
@@ -71,7 +72,7 @@ export function MapTodoCard({
 
       {/* 第二行：位置 (location_on 图标 + 站点名) */}
       <div className={styles.locationRow}>
-        <MaterialIcon name="location_on" className={styles.locationIcon} />
+        <LocationOnIcon className={styles.locationIcon} />
         <span className={styles.locationText}>{ticket.siteName}</span>
       </div>
 
@@ -79,7 +80,7 @@ export function MapTodoCard({
       <div className={styles.footerRow}>
         <span className={styles.assignee}>{ticket.assignee || '未分配'}</span>
         <span className={`${styles.urgencyBadge} ${pClass.badge}`}>
-          {ticket.priority}
+          {PRIORITY_LABEL[ticket.priority] ?? ticket.priority}
         </span>
       </div>
     </div>

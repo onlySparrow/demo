@@ -1,6 +1,8 @@
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 
+import { getCookie, handleUnauthorized } from './auth'
+
 /**
  * 统一 HTTP 请求封装。
  *
@@ -8,6 +10,7 @@ import type { AxiosRequestConfig } from 'axios'
  * - 所有请求携带 cookie（withCredentials，跨域也生效）
  * - 请求拦截器自动附加 Bearer Token（优先取 cookie，localStorage 兜底）
  * - 响应拦截器统一解包 { code, message, data } 结构，异常统一转为 Error 抛出
+ * - 401(HTTP 状态码或业务码)统一清 token/用户信息并跳回门户登录页(见 utils/auth.ts)
  */
 
 /** 后端统一响应结构（与网关实际返回不一致时调整这里） */
@@ -23,11 +26,6 @@ const SUCCESS_CODE = 200
 /** 会话过期的业务码 */
 const UNAUTHORIZED_CODE = 401
 
-const TOKEN_KEY = 'access_token'
-
-/** 统一认证写入 token 的 cookie 键名 —— 与认证系统实际键名对不上时改这里 */
-const TOKEN_COOKIE_KEY = 'token'
-
 /** HTTP 状态码 → 用户可读的提示文案 */
 const HTTP_STATUS_MESSAGES: Record<number, string> = {
   400: '请求参数错误',
@@ -42,27 +40,20 @@ const HTTP_STATUS_MESSAGES: Record<number, string> = {
 }
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
+  // 部署在 /unifiedTodo 上下文下时,BASE_URL 为 /unifiedTodo/ → 接口走 /unifiedTodo/api(nginx 同前缀代理);
+  // 开发环境 BASE_URL 为 / → /api。特殊网关前缀用 VITE_API_BASE_URL 覆盖。
+  baseURL: "/platform/api",
   timeout: 15_000,
   // Cookie 是浏览器禁止脚本手动设置的头,带上 cookie 数据的标准做法就是开此项:
   // 跨域时浏览器才会把 cookie 附到请求头(同源场景默认就会带)
   withCredentials: true,
 })
 
-/** 从 cookie 读取指定键的值 */
-function getCookie(key: string): string | null {
-  for (const pair of document.cookie.split(';')) {
-    const [name, ...rest] = pair.trim().split('=')
-    if (name === key) {
-      return decodeURIComponent(rest.join('='))
-    }
-  }
-  return null
-}
+// getCookie 已收敛到 utils/auth.ts 统一维护(与 token 键名 / 清理逻辑同处)
 
 instance.interceptors.request.use((config) => {
-  // token 优先取 cookie(统一认证写入),localStorage 兜底
-  const token = getCookie(TOKEN_COOKIE_KEY) ?? localStorage.getItem(TOKEN_KEY)
+  // token 优先取 cookie(统一认证写入);getCookie 不传 key 默认读 TOKEN_KEY
+  const token = getCookie() ?? ''
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`)
   }
@@ -80,17 +71,31 @@ instance.interceptors.response.use(
     // 非标准结构（无 code 字段）直接透传，兼容第三方接口
     if (res && typeof res.code === 'number') {
       if (res.code === UNAUTHORIZED_CODE) {
-        localStorage.removeItem(TOKEN_KEY)
-        // TODO: 登录页 / 统一认证接入后改为跳转登录
+        // 会话过期:清 token/用户信息并跳回门户登录页
+        handleUnauthorized()
+        return Promise.reject(new Error(res.message || '登录状态已失效，请重新登录'))
       }
       if (res.code !== SUCCESS_CODE) {
         return Promise.reject(new Error(res.message || `请求失败（code: ${res.code}）`))
       }
       return (res.data ?? null) as never
     }
+    // 预期 JSON 却拿到字符串(典型:接口路径被 nginx try_files 回退成了 index.html):
+    // 直接拒绝,让页面走既有错误分支(提示失败/空态),避免脏数据进入渲染层导致白屏
+    if (typeof response.data === 'string') {
+      return Promise.reject(
+        new Error('接口返回异常（非 JSON），请检查服务地址与 nginx 接口代理配置'),
+      )
+    }
     return response.data as never
   },
-  (error) => Promise.reject(new Error(resolveErrorMessage(error))),
+  (error) => {
+    // HTTP 401:会话过期,清 token/用户信息并跳回门户登录页
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      handleUnauthorized()
+    }
+    return Promise.reject(new Error(resolveErrorMessage(error)))
+  },
 )
 
 /** 把各类异常（超时 / HTTP 状态码 / 网络错误）归一成可读文案 */

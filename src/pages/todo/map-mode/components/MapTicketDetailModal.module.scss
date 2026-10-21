@@ -1,0 +1,11 @@
+@use '../../../../assets/styles/tokens' as *;
+
+/* 详情内容渲染已抽到共用组件 TicketDetail(pages/todo/components/TicketDetail),
+   本文件只保留 Modal 壳样式 */
+.detailModal {
+  :global(.ant-modal-content) {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+}

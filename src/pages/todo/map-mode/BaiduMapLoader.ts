@@ -21,8 +21,7 @@ export function loadBaiduMap(): Promise<any> {
 
   loadPromise = new Promise((resolve, reject) => {
     try {
-      const ak =
-        import.meta.env.VITE_BAIDU_MAP_AK || 'E4805d16520de693a3fe707cdc962045'
+      const ak = import.meta.env.VITE_BAIDU_MAP_AK || 'E4805d16520de693a3fe707cdc962045'
       window.BMAP_PROTOCOL = 'https'
       window.BMap_loadScriptTime = new Date().getTime()
 

@@ -1,16 +1,16 @@
-import { DatePicker, Radio, Select, Space, Spin } from 'antd'
+import { DatePicker, Radio, Spin } from 'antd'
+import dayjs from 'dayjs'
+import type { Dayjs } from 'dayjs'
 import type { EChartsOption } from 'echarts'
 import { useEffect, useState } from 'react'
 
-// 先引入 performanceMock.ts，待后端接口开发就绪后直接改为: import { fetchPerformanceData, type PerformanceData, type MemberPerformance, type PerformancePeriod } from '../../api/performance'
 import {
   fetchPerformanceData,
-  type MemberPerformance,
   type PerformanceData,
   type PerformancePeriod,
-} from '../../api/performanceMock'
+} from '@/api/performance'
 
-import { AlertBanner } from './components/AlertBanner'
+import { AnalyticsIcon, TaskAltIcon, TimerIcon, WarningIcon } from '@/assets/icons'
 import { EChartsCard } from './components/EChartsCard'
 import { KpiCard } from './components/KpiCard'
 import { MemberRankTable } from './components/MemberRankTable'
@@ -20,16 +20,30 @@ import styles from './PerformancePage.module.scss'
 
 export function PerformancePage() {
   const [period, setPeriod] = useState<PerformancePeriod>('week')
+  /** 自定义时间区间(period=custom 时生效) */
+  const [customRange, setCustomRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
   const [data, setData] = useState<PerformanceData | null>(null)
   const [loading, setLoading] = useState(false)
-  const [selectedMember, setSelectedMember] = useState<MemberPerformance | null>(null)
 
   useEffect(() => {
+    // 自定义周期必须带起止日期(后端缺少 startDate/endDate 会返 400),
+    // 区间被清空时先不请求,避免把上一次周期的数据误当成自定义结果
+    if (period === 'custom' && !(customRange[0] && customRange[1])) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    fetchPerformanceData(period)
+    const dateRange =
+      period === 'custom' && customRange[0] && customRange[1]
+        ? ([
+            customRange[0].format('YYYY-MM-DD'),
+            customRange[1].format('YYYY-MM-DD'),
+          ] as [string, string])
+        : undefined
+    // view / scope 随接口下发(见 doc/个人效能接口文档.md)
+    fetchPerformanceData(period, dateRange)
       .then((res) => {
         setData(res)
-        setSelectedMember(res.members[0] || null)
       })
       .catch((err) => {
         console.error('[performance] 获取效能数据失败:', err)
@@ -37,7 +51,7 @@ export function PerformancePage() {
       .finally(() => {
         setLoading(false)
       })
-  }, [period])
+  }, [period, customRange])
 
   if (!data && loading) {
     return (
@@ -47,7 +61,12 @@ export function PerformancePage() {
     )
   }
 
-  if (!data) return null
+  // 接口无数据(data 为 null 或字段缺失)统一按空态渲染,页面框架保持完整:
+  // KPI 数值/环比显「-」、预警无值显「-」、图表与表格居中「暂无数据」
+  const kpis = data?.kpis
+  const typeDistribution = data?.typeDistribution ?? []
+  const durationHist = data?.durationHist ?? { labels: [], values: [] }
+  const members = data?.members ?? []
 
   // 1. 饼图配置 (工单类型分布)
   const pieOption: EChartsOption = {
@@ -63,53 +82,19 @@ export function PerformancePage() {
         avoidLabelOverlap: false,
         label: { show: false },
         emphasis: { label: { show: true, fontSize: 12, fontWeight: 'bold' } },
-        data: data.typeDistribution,
+        data: typeDistribution,
       },
     ],
   }
 
-  // 2. 趋势折线图配置 (个人完成量 vs 组织均值)
-  const trendOption: EChartsOption = {
-    tooltip: { trigger: 'axis' },
-    legend: { top: 0, textStyle: { fontSize: 11 } },
-    grid: { left: '3%', right: '4%', bottom: '3%', top: 32, containLabel: true },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: data.trend.labels,
-      axisLine: { lineStyle: { color: '#c0c7d6' } },
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { lineStyle: { color: '#e6e8eb' } },
-    },
-    series: [
-      {
-        name: '个人完成量',
-        type: 'line',
-        smooth: true,
-        data: data.trend.personal,
-        itemStyle: { color: '#005daa' },
-        areaStyle: { color: 'rgba(0, 93, 170, 0.08)' },
-      },
-      {
-        name: '组织均值',
-        type: 'line',
-        smooth: true,
-        data: data.trend.orgAvg,
-        itemStyle: { color: '#934600' },
-        lineStyle: { type: 'dashed' },
-      },
-    ],
-  }
-
-  // 3. 时长分布柱状图配置
+  // 2. 时长分布柱状图配置 (处理时长分布)
   const histOption: EChartsOption = {
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     grid: { left: '3%', right: '4%', bottom: '3%', top: 20, containLabel: true },
     xAxis: {
       type: 'category',
-      data: data.durationHist.labels,
+      // 后端标签为 <15min / 15-30min 等,展示层统一换成「分钟」
+      data: durationHist.labels.map((label) => label.replace(/min/gi, '分钟')),
       axisLine: { lineStyle: { color: '#c0c7d6' } },
     },
     yAxis: {
@@ -120,135 +105,115 @@ export function PerformancePage() {
       {
         name: '工单量',
         type: 'bar',
-        data: data.durationHist.values,
+        data: durationHist.values,
         itemStyle: { color: '#005daa', borderRadius: [4, 4, 0, 0] },
-      },
-    ],
-  }
-
-  // 4. 雷达图配置
-  const currentMember = selectedMember || data.members[0]
-  const radarOption: EChartsOption = {
-    tooltip: {},
-    legend: { top: 0, textStyle: { fontSize: 11 } },
-    radar: {
-      indicator: [
-        { name: '处理量', max: 100 },
-        { name: '时效性', max: 100 },
-        { name: '解决质量', max: 100 },
-        { name: '响应速度', max: 100 },
-        { name: '准确率', max: 100 },
-      ],
-      radius: '65%',
-      splitArea: { areaStyle: { color: ['#fff', '#f9fafb'] } },
-    },
-    series: [
-      {
-        name: '能力画像',
-        type: 'radar',
-        data: [
-          {
-            value: [
-              currentMember.radar.volume,
-              currentMember.radar.speed,
-              currentMember.radar.quality,
-              currentMember.radar.response,
-              currentMember.radar.accuracy,
-            ],
-            name: currentMember.name,
-            itemStyle: { color: '#005daa' },
-            areaStyle: { color: 'rgba(0, 93, 170, 0.2)' },
-          },
-          {
-            value: [75, 72, 80, 78, 80],
-            name: '组织均值',
-            itemStyle: { color: '#c0c7d6' },
-            lineStyle: { type: 'dashed' },
-            areaStyle: { color: 'rgba(192, 199, 214, 0.1)' },
-          },
-        ],
       },
     ],
   }
 
   return (
     <div className={styles.container}>
-      {/* 顶部时间维度与筛选 */}
+      {/* 顶部:时间维度(+自定义区间紧随其后),固定个人视图 */}
       <div className={styles.headerBar}>
-        <Radio.Group
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          buttonStyle="solid"
-          size="middle"
-        >
-          {PERFORMANCE_PERIOD_OPTIONS.map((opt) => (
-            <Radio.Button key={opt.value} value={opt.value}>
-              {opt.label}
-            </Radio.Button>
-          ))}
-        </Radio.Group>
+        <div className={styles.headerLeft}>
+          <Radio.Group
+            value={period}
+            onChange={(e) => {
+              const next = e.target.value as PerformancePeriod
+              // 首次切到「自定义」:默认最近 7 天,保证立即带上 startDate/endDate 请求
+              // (后端对无日期的 period=custom 返回 400,会导致页面停留在上一周期数据)
+              if (next === 'custom' && !(customRange[0] && customRange[1])) {
+                setCustomRange([dayjs().subtract(6, 'day'), dayjs()])
+              }
+              setPeriod(next)
+            }}
+            buttonStyle="solid"
+            size="middle"
+          >
+            {PERFORMANCE_PERIOD_OPTIONS.map((opt) => (
+              <Radio.Button key={opt.value} value={opt.value}>
+                {opt.label}
+              </Radio.Button>
+            ))}
+          </Radio.Group>
 
-        {period === 'custom' && (
-          <Space>
-            <DatePicker.RangePicker size="middle" placeholder={['开始日期', '结束日期']} />
-          </Space>
-        )}
-      </div>
-
-      {/* 效能预警通知栏 */}
-      <AlertBanner alerts={data.alerts} />
-
-      {/* 5 个核心 KPI 卡片 */}
-      <div className={styles.kpiGrid}>
-        <KpiCard title="累计完成工单" metric={data.kpis.totalCompleted} subtitle="个人工单池" />
-        <KpiCard
-          title="按时办结率"
-          metric={data.kpis.completeRate}
-          subtitle={`目标 ${data.kpis.completeRate.target}%`}
-        />
-        <KpiCard
-          title="平均处理时效"
-          metric={data.kpis.avgDuration}
-          subtitle={`基准 ${data.kpis.avgDuration.target}min`}
-        />
-        <KpiCard title="今日即时办结率" metric={data.kpis.todayRate} subtitle="当日日结" />
-        <KpiCard title="超时工单数" metric={data.kpis.overtimeCount} subtitle="逾期督办" />
-      </div>
-
-      {/* 图表第一行：工单类型分布 + 趋势对比 */}
-      <div className={styles.chartGrid}>
-        <EChartsCard title="工单类型分布占比" option={pieOption} height={260} />
-        <EChartsCard title="处理量趋势对比 (个人 vs 组织均值)" option={trendOption} height={260} />
-      </div>
-
-      {/* 图表第二行：时长分布直方图 + 五维能力雷达图 */}
-      <div className={styles.chartGrid}>
-        <EChartsCard title="工单处理时长分布直方图" option={histOption} height={260} />
-        <EChartsCard
-          title="个人综合能力五维雷达画像"
-          option={radarOption}
-          height={260}
-          extra={
-            <Select
-              size="small"
-              value={currentMember.name}
-              style={{ width: 130 }}
-              onChange={(name) => {
-                const target = data.members.find((m) => m.name === name)
-                if (target) setSelectedMember(target)
-              }}
-              options={data.members.map((m) => ({ value: m.name, label: m.name }))}
+          {/* 自定义时间:紧跟「自定义」按钮之后 */}
+          {period === 'custom' && (
+            <DatePicker.RangePicker
+              size="middle"
+              value={customRange}
+              onChange={(values) => setCustomRange([values?.[0] ?? null, values?.[1] ?? null])}
+              placeholder={['开始日期', '结束日期']}
+              allowClear
             />
-          }
+          )}
+        </div>
+      </div>
+
+      {/* 内容区:切换时间维度(调接口)时整块加载遮罩,请求结束在 finally 里关闭 */}
+      <Spin spinning={loading} tip="加载效能数据中...">
+        <div className={styles.contentBody}>
+          {/* 4 个核心 KPI 卡片(2026-10-15 新版):完成总量带环比,其余三项带口径说明 */}
+          <div className={styles.kpiGrid}>
+        <KpiCard
+          title="工单完成总量"
+          icon={<TaskAltIcon style={{ fontSize: 16 }} />}
+          iconColor="#005daa"
+          metric={kpis?.totalCompleted}
+        />
+        <KpiCard
+          title="工单完成率"
+          icon={<AnalyticsIcon style={{ fontSize: 16 }} />}
+          iconColor="#16a34a"
+          metric={kpis?.completeRate}
+          unit="%"
+          hint="已完成工单数 ÷ 工单总数 × 100%"
+        />
+        <KpiCard
+          title="平均处理耗时"
+          icon={<TimerIcon style={{ fontSize: 16 }} />}
+          iconColor="#934600"
+          metric={kpis?.avgDuration}
+          unit="分钟"
+          hint="单件工单从受理到完成的平均耗时"
+        />
+        <KpiCard
+          title="SLA 超时工单数"
+          icon={<WarningIcon style={{ fontSize: 16 }} />}
+          iconColor="#ba1a1a"
+          metric={kpis?.overtimeCount}
+          hint="超出 SLA 预定时限的工单数量"
+          valueColor="#ba1a1a"
         />
       </div>
 
-      {/* 团队效能排名表 */}
+      {/* 图表行:工单类型分布 + 处理时长分布(无数据居中展示「暂无数据」) */}
+      <div className={styles.chartGrid}>
+        <EChartsCard
+          title="工单类型分布"
+          option={pieOption}
+          height={260}
+          empty={typeDistribution.length === 0}
+        />
+        <EChartsCard
+          title="处理时长分布"
+          option={histOption}
+          height={260}
+          empty={durationHist.values.length === 0}
+        />
+      </div>
+
+      {/* 成员效能排行(最大高度滚动 + 表头固定,支持导出报表);view/scope 走接口默认(personal/dept) */}
       <MemberRankTable
-        members={data.members}
-        selectedMemberName={currentMember.name}
-        onSelectMember={setSelectedMember}
+        members={members}
+        exportParams={{
+          period,
+          startDate: period === 'custom' ? customRange[0]?.format('YYYY-MM-DD') : undefined,
+          endDate: period === 'custom' ? customRange[1]?.format('YYYY-MM-DD') : undefined,
+        }}
       />
+        </div>
+      </Spin>
     </div>
   )
 }

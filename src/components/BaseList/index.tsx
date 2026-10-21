@@ -1,5 +1,5 @@
 import { Button, Checkbox, Empty, Pagination, Spin } from 'antd'
-import type { CSSProperties, Key, ReactNode, UIEvent } from 'react'
+import type { CSSProperties, Key, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -15,8 +15,6 @@ export interface BaseListPagination {
   current?: number
   /** 页码 / 每页条数变化回调 */
   onChange?: (page: number, pageSize: number) => void
-  /** 是否还有更多数据(loadMore 模式) */
-  hasMore?: boolean
 }
 
 /** 行渲染上下文 —— selectable 开启时提供行选择框节点,由行内容决定摆放位置(如标题前) */
@@ -58,15 +56,8 @@ export interface BaseListProps<T> {
    * (横跨整个内容区,按钮内容由各页面自定义)。
    */
   batchSlot?: ReactNode
-  /** 分页配置;不传则不分页 */
+  /** 分页配置;不传则不分页,传入时在底部渲染经典分页器 */
   pagination?: BaseListPagination
-  /**
-   * 分页形式:loadMore 上拉加载下一页(默认) /
-   * bottom 固定在底部的经典分页器
-   */
-  paginationMode?: 'loadMore' | 'bottom'
-  /** 上拉加载下一页回调(loadMore 模式) */
-  onLoadMore?: () => void
   /** 空态文案 */
   emptyText?: string
 }
@@ -74,7 +65,7 @@ export interface BaseListProps<T> {
 const DEFAULT_PAGE_SIZE = 10
 
 /**
- * 基础列表组件 —— 标题 / 筛选插槽 / 可选行选择框 / 可配分页(上拉加载或底部经典分页)。
+ * 基础列表组件 —— 标题 / 筛选插槽 / 可选行选择框 / 底部经典分页器。
  * 只负责列表壳,行内容由 renderItem 决定。
  */
 export function BaseList<T>(props: BaseListProps<T>) {
@@ -85,7 +76,7 @@ export function BaseList<T>(props: BaseListProps<T>) {
     filterExtraSlot,
     toolbarSlot,
     toolbarSticky,
-    dataSource,
+    dataSource = [],
     rowKey,
     renderItem,
     loading,
@@ -94,18 +85,17 @@ export function BaseList<T>(props: BaseListProps<T>) {
     onSelectedChange,
     batchSlot,
     pagination,
-    paginationMode = 'loadMore',
-    onLoadMore,
     emptyText = '暂无数据',
   } = props
 
   const pageSize = pagination?.pageSize ?? DEFAULT_PAGE_SIZE
-  const loadingLock = useRef(false)
   const listRef = useRef<HTMLDivElement>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const [batchBarStyle, setBatchBarStyle] = useState<CSSProperties>()
 
   const showBatchBar = Boolean(selectable && batchSlot && selectedRowKeys.length > 0)
+  /** 底部有常驻分页器,批量条需要抬高避让 */
+  const withBottomPagination = Boolean(pagination)
 
   /**
    * 批量操作条通栏横跨内容区、悬浮在整个内容区底部:
@@ -121,33 +111,20 @@ export function BaseList<T>(props: BaseListProps<T>) {
       if (!listRect) {
         return
       }
-      setBatchBarStyle({ left: listRect.left, right: 16, bottom: 16 })
+      // bottom 模式下分页器占据 footer(高约 45px),批量条再往上让出一行
+      setBatchBarStyle({
+        left: listRect.left,
+        right: 16,
+        bottom: withBottomPagination ? 56 : 16,
+      })
     }
 
     updateBatchBarPosition()
     window.addEventListener('resize', updateBatchBarPosition)
     return () => window.removeEventListener('resize', updateBatchBarPosition)
-  }, [showBatchBar])
+  }, [showBatchBar, withBottomPagination])
 
-  /** 上拉触底加载下一页 */
-  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    if (paginationMode !== 'loadMore' || !pagination?.hasMore || !onLoadMore || loading) {
-      return
-    }
-    const el = event.currentTarget
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) {
-      if (loadingLock.current) {
-        return
-      }
-      loadingLock.current = true
-      onLoadMore()
-      // 防重复触发:下一帧解锁;持续防抖由调用方的 loading 态控制
-      requestAnimationFrame(() => {
-        loadingLock.current = false
-      })
-    }
-  }
-
+  /** 单行勾选 / 取消 */
   const toggleRow = (key: Key, checked: boolean) => {
     if (!onSelectedChange) {
       return
@@ -157,11 +134,11 @@ export function BaseList<T>(props: BaseListProps<T>) {
     )
   }
 
-  /** 当前加载的行是否已全部选中 */
+  /** 当前页行 key 集合及是否已全部选中(全选仅作用于本页) */
   const pageKeys = dataSource.map(rowKey)
   const allSelected = pageKeys.length > 0 && pageKeys.every((key) => selectedRowKeys.includes(key))
 
-  /** 全选 / 取消全选(作用于当前加载的全部行) */
+  /** 全选 / 取消全选:作用于当前页全部行 */
   const toggleSelectAll = () => {
     if (!onSelectedChange) {
       return
@@ -179,19 +156,22 @@ export function BaseList<T>(props: BaseListProps<T>) {
         <div className={styles.header}>
           <div className={styles.headerMain}>
             <div className={styles.title}>{title}</div>
-            {/* selectable 时:标题后展示带复选框的全选(三态)与已选数量 */}
+            {/* 全选:仅作用于当前页全部行 */}
             {selectable && (
               <Checkbox
                 className={styles.selectAll}
                 checked={allSelected}
                 indeterminate={!allSelected && selectedRowKeys.length > 0}
                 onChange={toggleSelectAll}
+                title="选中当前页全部工单"
               >
                 全选
               </Checkbox>
             )}
             {selectable && selectedRowKeys.length > 0 && (
-              <span className={styles.selectedCount}>已选 {selectedRowKeys.length} 项</span>
+              <span className={styles.selectedCount}>
+                {`已选 ${selectedRowKeys.length} 项`}
+              </span>
             )}
           </div>
           {titleExtra && <div className={styles.titleExtra}>{titleExtra}</div>}
@@ -208,10 +188,7 @@ export function BaseList<T>(props: BaseListProps<T>) {
       {/* 工具条固定模式:渲染在滚动区外,位置恒定 */}
       {toolbarSlot && toolbarSticky && <div className={styles.toolbarFixed}>{toolbarSlot}</div>}
 
-      <div
-        className={showBatchBar ? `${styles.body} ${styles.bodyWithBatch}` : styles.body}
-        onScroll={handleScroll}
-      >
+      <div className={showBatchBar ? `${styles.body} ${styles.bodyWithBatch}` : styles.body}>
         {/* 工具条默认模式:位于滚动区内,跟随第一条内容滚走 */}
         {toolbarSlot && !toolbarSticky && <div className={styles.toolbar}>{toolbarSlot}</div>}
         {loading && dataSource.length === 0 ? (
@@ -241,18 +218,11 @@ export function BaseList<T>(props: BaseListProps<T>) {
             })}
 
             {loading && dataSource.length > 0 && <Spin className={styles.moreSpin} size="small" />}
-            {paginationMode === 'loadMore' &&
-              pagination?.hasMore &&
-              !loading &&
-              dataSource.length > 0 && <div className={styles.loadMoreHint}>上拉加载更多</div>}
-            {paginationMode === 'loadMore' && !pagination?.hasMore && dataSource.length > 0 && (
-              <div className={styles.loadMoreHint}>没有更多了</div>
-            )}
           </>
         )}
       </div>
 
-      {paginationMode === 'bottom' && pagination && (
+      {pagination && (
         <div className={styles.footer}>
           <Pagination
             size="small"
@@ -260,6 +230,8 @@ export function BaseList<T>(props: BaseListProps<T>) {
             total={pagination.total}
             pageSize={pageSize}
             showSizeChanger
+            /* 大数据量下收敛页码窗口:仅展示「1 2 3 ... 末页」,避免页码条过宽挤出内容区 */
+            showLessItems
             showTotal={(total) => `共 ${total} 条`}
             onChange={pagination.onChange}
           />
@@ -270,7 +242,9 @@ export function BaseList<T>(props: BaseListProps<T>) {
       {showBatchBar
         ? createPortal(
             <div className={styles.batchBar} style={batchBarStyle}>
-              <span className={styles.batchCount}>已选 {selectedRowKeys.length} 项</span>
+              <span className={styles.batchCount}>
+                {`已选 ${selectedRowKeys.length} 项`}
+              </span>
               <div className={styles.batchActions}>{batchSlot}</div>
               {/* 取消选择 */}
               <Button

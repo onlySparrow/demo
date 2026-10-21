@@ -1,4 +1,19 @@
-import { get, post } from '../utils/request'
+import {
+  createInitiatedOrder as mockCreateInitiatedOrder,
+  fetchInitiatedOrders as mockFetchInitiatedOrders,
+  urgeInitiatedOrder as mockUrgeInitiatedOrder,
+  withdrawInitiatedOrder as mockWithdrawInitiatedOrder,
+} from '../../mockApi/initiatedMock'
+
+/**
+ * 由我发起模块接口层 —— 当前统一接入本地 mock 数据源（仓库根目录 `mockApi/initiatedMock.ts`）。
+ *
+ * 页面与组件一律从 `@/api/initiated` 引入，不感知数据来自真实接口还是 mock；
+ * 本地无后端即可跑通列表 / 催办 / 撤回 / 发起新工单。
+ *
+ * 切回真实接口：把下面每个函数的实现换回 `get` / `post` 调用即可
+ * （函数名与入参签名保持不变，调用方零改动）。
+ */
 
 export interface InitiatedProgress {
   totalSteps: number
@@ -35,20 +50,20 @@ export interface InitiatedOrdersResult {
 
 /** 查询由我发起的工单列表 */
 export function fetchInitiatedOrders(params?: FetchInitiatedOrdersParams): Promise<InitiatedOrdersResult> {
-  return get<InitiatedOrdersResult>('/order/initiated/list', params)
+  return mockFetchInitiatedOrders(params)
 }
 
 /** 催办工单 */
 export function urgeInitiatedOrder(id: string): Promise<{ success: boolean; message: string }> {
-  return post<{ success: boolean; message: string }>('/order/initiated/urge', { id })
+  return mockUrgeInitiatedOrder(id)
 }
 
 /** 撤回工单 */
 export function withdrawInitiatedOrder(id: string): Promise<{ success: boolean; message: string }> {
-  return post<{ success: boolean; message: string }>('/order/initiated/withdraw', { id })
+  return mockWithdrawInitiatedOrder(id)
 }
 
 /** 发起新工单 */
 export function createInitiatedOrder(data: Partial<InitiatedTicket>): Promise<InitiatedTicket> {
-  return post<InitiatedTicket>('/order/initiated/create', data)
+  return mockCreateInitiatedOrder(data)
 }

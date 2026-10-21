@@ -1,0 +1,80 @@
+@use '../../assets/styles/tokens' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 24px;
+  background: $td-surface;
+  border-bottom: 1px solid $td-outline-variant;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: $td-gutter;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: $td-primary;
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 页面插槽容器:内容为空时整体隐藏 */
+.slot {
+  display: flex;
+  align-items: center;
+  gap: $td-gutter;
+  min-width: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $td-gutter;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: $td-radius-md;
+  cursor: pointer;
+
+  &:hover {
+    background: $td-surface-container;
+  }
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 18px;
+}
+
+.userName {
+  color: $td-text;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.userDept {
+  color: $td-outline;
+  font-size: 12px;
+}
+
+.avatar {
+  background: $td-primary;
+  font-weight: 600;
+}

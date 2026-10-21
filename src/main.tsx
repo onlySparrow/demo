@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import 'material-symbols/outlined.css'
 
 import App from './App'
+import { AppErrorBoundary } from './components/AppErrorBoundary'
 import './assets/styles/global.scss'
 
 const container = document.getElementById('root')
@@ -12,6 +12,8 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   </StrictMode>,
 )

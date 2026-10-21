@@ -1,79 +1,86 @@
-import { CloseOutlined, EnvironmentOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Space, Tag, message } from 'antd'
+import { CloseOutlined, UserOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+import type { CSSProperties } from 'react'
 
 import type { MapTodoTicket } from '../types'
 
 import styles from '../index.module.scss'
 
+export interface MapInfoWindowPosition {
+  /** 相对地图容器的 left(px) */
+  left: number
+  /** 相对地图容器的 top(px) */
+  top: number
+}
+
+/**
+ * 地图标记气泡 —— 锚定在点击/悬停机房位置
+ * compact：悬停轻量预览（无「查看工单详情」主按钮可保留简化）
+ */
 export function MapInfoWindow({
   ticket,
+  position,
   onClose,
+  onViewDetail,
+  compact = false,
 }: {
   ticket: MapTodoTicket
+  position: MapInfoWindowPosition
   onClose: () => void
+  onViewDetail: () => void
+  compact?: boolean
 }) {
-  const getUrgencyTag = (p: MapTodoTicket['priority']) => {
-    switch (p) {
-      case '高':
-        return <Tag color="error">高紧急度</Tag>
-      case '中':
-        return <Tag color="warning">中紧急度</Tag>
-      default:
-        return <Tag color="processing">低紧急度</Tag>
-    }
-  }
+  const deadline = ticket.deadline || ticket.sla || '--'
 
-  const handleAction = () => {
-    message.success(`已定位并开启工单 ${ticket.id} 处理流程`)
+  const style: CSSProperties = {
+    left: position.left,
+    top: position.top,
+    transform: 'translate(-50%, calc(-100% - 16px))',
   }
 
   return (
-    <div className={styles.infoWindowCard}>
+    <div
+      className={`${styles.infoWindowCard} ${compact ? styles.infoWindowCompact : ''}`}
+      style={style}
+      onMouseEnter={(e) => e.stopPropagation()}
+    >
       <div className={styles.infoWindowHeader}>
-        <div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>
-            {ticket.ticketNo || ticket.id}
-          </span>
-          <span style={{ marginLeft: 8 }}>{getUrgencyTag(ticket.priority)}</span>
+        <div className={styles.infoWindowTitleBlock}>
+          <div className={styles.infoWindowTitle} title={ticket.title}>
+            {ticket.title}
+          </div>
+          <div className={styles.infoWindowNo}>{ticket.ticketNo || ticket.id}</div>
         </div>
-        <Button
-          type="text"
-          size="small"
-          icon={<CloseOutlined />}
-          onClick={onClose}
-          style={{ color: '#999' }}
-        />
+        {!compact && (
+          <Button
+            type="text"
+            size="small"
+            icon={<CloseOutlined />}
+            onClick={onClose}
+            className={styles.infoWindowClose}
+          />
+        )}
       </div>
 
       <div className={styles.infoWindowBody}>
-        <div style={{ fontWeight: 600, color: '#1a1a1a', fontSize: 13, lineHeight: 1.4 }}>
-          {ticket.title}
+        <div className={styles.infoWindowPerson}>
+          <UserOutlined className={styles.infoWindowPersonIcon} />
+          <div>
+            <div className={styles.infoWindowPersonLabel}>处理人</div>
+            <div className={styles.infoWindowPersonName}>{ticket.assignee || '未分配'}</div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#555' }}>
-          <EnvironmentOutlined style={{ color: '#005daa' }} />
-          <span>{ticket.siteName}</span>
+        <div className={styles.infoWindowDeadline}>
+          <span className={styles.infoWindowDeadlineLabel}>处理时限:</span>
+          <span className={styles.infoWindowDeadlineValue}>{deadline}</span>
         </div>
 
-        <div style={{ color: '#777', fontSize: 11 }}>地址: {ticket.address}</div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666', borderTop: '1px dashed #eee', paddingTop: 6 }}>
-          <span>
-            <UserOutlined style={{ marginRight: 4 }} />
-            {ticket.assignee || '未分配'}
-          </span>
-          <span>来源: {ticket.app}</span>
-        </div>
-
-        {ticket.sla && (
-          <div style={{ fontSize: 11, color: '#ba1a1a' }}>时限: {ticket.sla}</div>
-        )}
-
-        <Space style={{ marginTop: 4, width: '100%', justifyContent: 'flex-end' }}>
-          <Button size="small" type="primary" onClick={handleAction}>
-            立即处理
+        {!compact && (
+          <Button type="primary" block size="large" onClick={onViewDetail}>
+            查看工单详情
           </Button>
-        </Space>
+        )}
       </div>
     </div>
   )

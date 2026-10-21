@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 3000",
+    "dev": "vite --host 0.0.0.0 --port 3003",
     "build": "tsc -b && vite build",
+    "build:pack": "tsc -b && vite build && sh -c 'rm -f todoweb.tar.gz todoweb.zip && (cd todoweb && zip -qr ../todoweb.zip .)'",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "tsc -b"
@@ -16,7 +17,6 @@
     "axios": "^1.20.0",
     "dayjs": "^1.11.23",
     "echarts": "^6.1.0",
-    "material-symbols": "^0.48.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^8.4.0",
@@ -31,6 +31,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "sass": "^1.105.1",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vite-plugin-svgr": "^5.2.0"
   }
 }

@@ -1,0 +1,69 @@
+{
+  "userName": "DWzzz",
+  "userId": "1789878649693609984",
+  "name": "赵珍珍",
+  "post": "CEO",
+  "email": "123@163.com",
+  "phoneNumber": "18513610817",
+  "lastLoginIP": "10.172.241.101",
+  "lastLoginTime": "2026-10-13 11:07:23",
+  "sex": "未知",
+  "orgName": "网络运营平台开发团队",
+  "orgId": "1796169021955141632",
+  "rolePermissions": [
+    "74652130",
+    "admin"
+  ],
+  "menuPermissions": [
+    "*:*:*"
+  ],
+  "isUnicom": "1",
+  "orgIds": "0000-1699356838747414531-1876439427268681728-1742838059059273728-1796165715891388416-1796169021955141632",
+  "orgCode": "ZJ-0346612",
+  "orgFullName": "-总部管理部门-(原)创新中心-人员-O域用户中心开发团队-网络运营平台开发团队",
+  "avatar": null,
+  "isLeader": "1",
+  "source": "2",
+  "orgList": [
+    {
+      "type": "1",
+      "typeName": "主岗",
+      "orgId": "1796169021955141632",
+      "orgIds": "0000-1699356838747414531-1876439427268681728-1742838059059273728-1796165715891388416-1796169021955141632",
+      "orgCode": "ZJ-0346612",
+      "orgName": "网络运营平台开发团队",
+      "orgFullName": "-总部管理部门-(原)创新中心-人员-O域用户中心开发团队-网络运营平台开发团队",
+      "post": "CEO",
+      "areaId": null,
+      "areaCode": null,
+      "provinceCode": null,
+      "woAreaCode": null,
+      "woProvinceCode": "120",
+      "isLeader": "1",
+      "localPost": true,
+      "postId": "1789878649693609985",
+      "woUserName": "DWzzz"
+    },
+    {
+      "type": "4",
+      "typeName": "业务岗",
+      "orgId": "1699356838818717711",
+      "orgIds": "0000-1699356850487271443-1699356838818717711",
+      "orgCode": "0011",
+      "orgName": "北京市分公司",
+      "orgFullName": "-省分公司-北京市分公司",
+      "post": null,
+      "areaId": "1",
+      "areaCode": "11",
+      "provinceCode": "09",
+      "woAreaCode": "1100001",
+      "woProvinceCode": "211",
+      "isLeader": "0",
+      "localPost": false,
+      "postId": "1970408010577870848",
+      "woUserName": "DWzzz---211"
+    }
+  ],
+  "woUserName": "DWzzz",
+  "birthday": null
+}

@@ -3,6 +3,13 @@ export interface SelectOption {
   label: string
 }
 
+/** 紧急程度展示文案映射(数据侧为 高/中/低,直接展示) */
+export const PRIORITY_LABEL: Record<string, string> = {
+  高: '高',
+  中: '中',
+  低: '低',
+}
+
 /** 待办 - 紧急度下拉字典数据 */
 export const TODO_PRIORITY_OPTIONS: SelectOption[] = [
   { value: 'high', label: '高' },

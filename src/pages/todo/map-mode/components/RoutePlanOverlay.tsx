@@ -1,10 +1,15 @@
 import { CloseOutlined, CompassOutlined } from '@ant-design/icons'
 import { Button, Tag } from 'antd'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
 
 import type { MapTodoTicket } from '../types'
 
 import styles from '../index.module.scss'
 
+/**
+ * 智能路径已生成浮层 —— 支持拖拽位置
+ */
 export function RoutePlanOverlay({
   tickets,
   onClose,
@@ -13,11 +18,59 @@ export function RoutePlanOverlay({
   onClose: () => void
 }) {
   const stops = tickets.slice(0, 5).map((t) => t.siteName)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 80, right: 24 })
+  const dragRef = useRef<{
+    startX: number
+    startY: number
+    originTop: number
+    originRight: number
+  } | null>(null)
+
+  const onMouseDown = useCallback(
+    (e: ReactMouseEvent) => {
+      // 仅标题栏可拖
+      if ((e.target as HTMLElement).closest('button')) return
+      e.preventDefault()
+      dragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        originTop: pos.top,
+        originRight: pos.right,
+      }
+    },
+    [pos],
+  )
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current) return
+      const dx = e.clientX - dragRef.current.startX
+      const dy = e.clientY - dragRef.current.startY
+      setPos({
+        top: Math.max(8, dragRef.current.originTop + dy),
+        right: Math.max(8, dragRef.current.originRight - dx),
+      })
+    }
+    const onUp = () => {
+      dragRef.current = null
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
 
   return (
-    <div className={styles.routeOverlay}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#005daa', fontWeight: 700, fontSize: 13 }}>
+    <div
+      ref={panelRef}
+      className={`${styles.routeOverlay} ${styles.routeOverlayDraggable}`}
+      style={{ top: pos.top, right: pos.right, left: 'auto' }}
+    >
+      <div className={styles.routeOverlayHandle} onMouseDown={onMouseDown}>
+        <div className={styles.routeOverlayTitle}>
           <CompassOutlined />
           <span>智能路径已生成</span>
         </div>
@@ -30,41 +83,27 @@ export function RoutePlanOverlay({
         />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: '#666' }}>预计总里程: 12.4 km</span>
+      <div className={styles.routeOverlayBody}>
+        <div className={styles.routeMetaRow}>
+          <span>预计总里程: 12.4 km</span>
           <Tag color="success" style={{ margin: 0, fontSize: 10 }}>
             路况顺畅
           </Tag>
         </div>
 
-        <div style={{ color: '#555' }}>
+        <div className={styles.routeMetaText}>
           预计总时长: <strong>45 分钟</strong> | 覆盖 <strong>{tickets.length}</strong> 个工单点
         </div>
 
-        <div
-          style={{
-            background: '#f4f7fb',
-            borderRadius: 6,
-            padding: '8px 10px',
-            border: '1px solid #e2e8f0',
-            fontSize: 11,
-            color: '#475569',
-          }}
-        >
-          <div style={{ fontWeight: 600, color: '#005daa', marginBottom: 4 }}>推荐巡检次序:</div>
-          <div style={{ lineHeight: 1.5 }}>
+        <div className={styles.routeStops}>
+          <div className={styles.routeStopsTitle}>推荐巡检次序:</div>
+          <div>
             {stops.join(' → ')}
             {tickets.length > 5 ? ' → ...' : ''}
           </div>
         </div>
 
-        <Button
-          danger
-          size="small"
-          onClick={onClose}
-          style={{ marginTop: 6 }}
-        >
+        <Button danger size="small" onClick={onClose} block style={{ marginTop: 6 }}>
           取消路径规划
         </Button>
       </div>
