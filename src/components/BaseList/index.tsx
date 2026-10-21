@@ -15,6 +15,18 @@ export interface BaseListPagination {
   current?: number
   /** 页码 / 每页条数变化回调 */
   onChange?: (page: number, pageSize: number) => void
+  /** 是否展示每页条数切换器,默认 true */
+  showSizeChanger?: boolean
+  /** 是否展示快速跳转,默认 false */
+  showQuickJumper?: boolean
+  /** 每页条数选项,默认 [10, 20, 50, 100] */
+  pageSizeOptions?: (number | string)[]
+  /** 自定义总数文案 */
+  showTotal?: (total: number, range: [number, number]) => ReactNode
+  /** 是否精简模式,默认 false */
+  simple?: boolean
+  /** 是否只有一页时隐藏分页器,默认 false */
+  hideOnSinglePage?: boolean
 }
 
 /** 行渲染上下文 —— selectable 开启时提供行选择框节点,由行内容决定摆放位置(如标题前) */
@@ -226,14 +238,19 @@ export function BaseList<T>(props: BaseListProps<T>) {
         <div className={styles.footer}>
           <Pagination
             size="small"
-            current={pagination.current}
-            total={pagination.total}
+            current={pagination.current ?? 1}
+            total={pagination.total ?? 0}
             pageSize={pageSize}
-            showSizeChanger
+            showSizeChanger={pagination.showSizeChanger ?? true}
+            pageSizeOptions={pagination.pageSizeOptions ?? ['10', '20', '50', '100']}
+            showQuickJumper={pagination.showQuickJumper}
+            simple={pagination.simple}
+            hideOnSinglePage={pagination.hideOnSinglePage}
             /* 大数据量下收敛页码窗口:仅展示「1 2 3 ... 末页」,避免页码条过宽挤出内容区 */
             showLessItems
-            showTotal={(total) => `共 ${total} 条`}
+            showTotal={pagination.showTotal ?? ((total) => `共 ${total} 条`)}
             onChange={pagination.onChange}
+            disabled={loading}
           />
         </div>
       )}

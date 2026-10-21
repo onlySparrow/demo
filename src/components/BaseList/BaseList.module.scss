@@ -139,9 +139,123 @@
 .footer {
   display: flex;
   flex: none;
-  justify-content: flex-end;
-  padding: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
   border-top: 1px solid $td-outline-variant;
+  background: $td-surface;
+  box-sizing: border-box;
+
+  :global {
+    .ant-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      flex-wrap: nowrap;
+      font-size: 12px;
+      line-height: 24px;
+      margin: 0;
+
+      .ant-pagination-total-text {
+        flex: 1;
+        min-width: 0;
+        margin-inline-end: 8px;
+        color: $td-text-secondary;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .ant-pagination-prev,
+      .ant-pagination-next,
+      .ant-pagination-item,
+      .ant-pagination-jump-prev,
+      .ant-pagination-jump-next {
+        min-width: 24px;
+        height: 24px;
+        line-height: 22px;
+        margin-inline-end: 4px;
+        font-size: 12px;
+        text-align: center;
+        border-radius: $td-radius-sm;
+      }
+
+      .ant-pagination-item-active {
+        font-weight: 600;
+      }
+
+      .ant-pagination-next {
+        margin-inline-end: 4px;
+      }
+
+      .ant-pagination-options {
+        margin-inline-start: 4px;
+        display: flex;
+        align-items: center;
+        flex: none;
+
+        .ant-select {
+          font-size: 12px;
+
+          .ant-select-selector {
+            height: 24px;
+            padding: 0 4px;
+            font-size: 12px;
+            border-radius: $td-radius-sm;
+
+            .ant-select-selection-item {
+              line-height: 22px;
+              padding-inline-end: 16px;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .ant-pagination-options-quick-jumper {
+          height: 24px;
+          line-height: 24px;
+          font-size: 12px;
+          margin-inline-start: 6px;
+
+          input {
+            height: 24px;
+            width: 36px;
+            padding: 0 4px;
+            font-size: 12px;
+            border-radius: $td-radius-sm;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 390px) {
+  .footer {
+    padding: 6px 8px;
+
+    :global {
+      .ant-pagination {
+        .ant-pagination-prev,
+        .ant-pagination-next,
+        .ant-pagination-item,
+        .ant-pagination-jump-prev,
+        .ant-pagination-jump-next {
+          min-width: 22px;
+          height: 22px;
+          line-height: 20px;
+          margin-inline-end: 2px;
+        }
+
+        .ant-pagination-options {
+          margin-inline-start: 2px;
+        }
+      }
+    }
+  }
 }
 
 /* 批量操作条:通栏横跨内容区,悬浮在整个内容区底部(坐标由组件测量后 inline 注入) */
